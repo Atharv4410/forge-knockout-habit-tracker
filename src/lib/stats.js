@@ -277,13 +277,16 @@ export function missReasonBreakdown(checkins, habitId) {
   return counts;
 }
 
-export function heatmapData(habit, checkins, weeksBack = 20) {
+// weekOffset shifts the visible window back in time by that many weeks (0 = ending today).
+export function heatmapData(habit, checkins, weeksBack = 20, weekOffset = 0) {
   const today = todayISO();
-  const start = addDays(startOfWeek(today), -7 * (weeksBack - 1));
+  const anchor = addDays(today, -7 * weekOffset);
+  const start = addDays(startOfWeek(anchor), -7 * (weeksBack - 1));
+  const end = weekOffset === 0 ? today : addDays(startOfWeek(anchor), 6);
   const days = [];
   const done = successDateSet(habit, checkins);
   const byDate = new Map(checkinsForHabit(checkins, habit.id).map((c) => [c.date, c]));
-  for (let d = start; d <= today; d = addDays(d, 1)) {
+  for (let d = start; d <= end; d = addDays(d, 1)) {
     days.push({
       date: d,
       required: isRequiredDay(habit, d) || habit.frequencyType === "weekly_count",

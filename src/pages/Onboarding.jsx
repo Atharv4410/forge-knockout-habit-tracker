@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useApp } from "../context/AppContext.jsx";
 import { GOALS, generateHabits, planSummary } from "../ai/index.js";
 import { describeSchedule } from "../lib/format.js";
+import { habitIcon } from "../lib/habitIcons.js";
 import HabitFields from "../components/habit/HabitFields.jsx";
 
 const STEP_LABELS = ["Welcome", "Your goal", "Your routine", "Your plan"];
@@ -62,7 +63,7 @@ export default function Onboarding() {
 
         {step === 0 && (
           <div className="stack gap-16">
-            <h1 className="page-title">What should we call you?</h1>
+            <h1 className="display-2">What should we call you?</h1>
             <p className="page-subtitle">Just a first name — everything else stays on this device.</p>
             <input
               className="input"
@@ -78,7 +79,7 @@ export default function Onboarding() {
 
         {step === 1 && (
           <div className="stack gap-20">
-            <h1 className="page-title">What do you want to improve?</h1>
+            <h1 className="display-2">What do you want to improve?</h1>
             <p className="page-subtitle">Pick one primary goal. You can add a secondary focus too, if you like.</p>
             <div className="goal-grid">
               {GOALS.map((g) => (
@@ -126,7 +127,7 @@ export default function Onboarding() {
 
         {step === 2 && (
           <div className="stack gap-24">
-            <h1 className="page-title">Tell us about your routine</h1>
+            <h1 className="display-2">Tell us about your routine</h1>
             <p className="page-subtitle">Just enough to build a realistic starting plan.</p>
             {LIFESTYLE_QUESTIONS.map((q) => (
               <div className="stack gap-10" key={q.key}>
@@ -160,9 +161,9 @@ export default function Onboarding() {
 
         {step === 3 && (
           <div className="stack gap-20">
-            <h1 className="page-title">Your starting plan</h1>
+            <h1 className="display-2">Here's your starting system.</h1>
             <p className="page-subtitle">{planSummary({ primaryGoal, answers })}</p>
-            <div className="stack gap-14">
+            <div className="stack gap-14 stagger">
               {suggestions.map((s) => {
                 const isRemoved = removed.has(s.suggestionId);
                 const merged = { ...s, ...overrides[s.suggestionId] };
@@ -170,9 +171,12 @@ export default function Onboarding() {
                 return (
                   <div key={s.suggestionId} className={"suggestion-card" + (isRemoved ? " removed" : "")}>
                     <div className="suggestion-head">
-                      <div className="stack gap-4">
-                        <span className="suggestion-name">{merged.name}</span>
-                        <span className="suggestion-meta">{describeSchedule(merged)} {merged.quantitative ? `· Target: ${merged.targetValue} ${merged.unit}` : ""}</span>
+                      <div className="row gap-12">
+                        <div className="habit-icon" aria-hidden="true" style={{ width: 40, height: 40, fontSize: "1.15rem" }}>{habitIcon(merged)}</div>
+                        <div className="stack gap-4">
+                          <span className="suggestion-name">{merged.name}</span>
+                          <span className="suggestion-meta">{describeSchedule(merged)} {merged.quantitative ? `· Target: ${merged.targetValue} ${merged.unit}` : ""}</span>
+                        </div>
                       </div>
                       <span className={"badge" + (merged.difficulty === "hard" ? " badge-danger" : merged.difficulty === "medium" ? " badge-warning" : " badge-success")}>{merged.difficulty}</span>
                     </div>
@@ -208,7 +212,10 @@ export default function Onboarding() {
                 );
               })}
             </div>
-            <p style={{ fontSize: "0.78rem", color: "var(--text-faint)" }}>
+            <p className="section-title" style={{ fontSize: "0.95rem", color: "var(--text-muted)", fontWeight: 600 }}>
+              Built around your current routine.
+            </p>
+            <p style={{ fontSize: "0.78rem", color: "var(--text-faint)", margin: 0 }}>
               These are personalized recommendations, not medical or professional advice — adjust anything that doesn't fit you.
             </p>
           </div>

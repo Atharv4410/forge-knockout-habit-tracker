@@ -19,7 +19,7 @@ export default function Landing() {
         your routine — not a generic habit checklist.
       </p>
       <button type="button" className="btn btn-accent" style={{ minHeight: 52, padding: "0 32px", fontSize: "1.02rem" }} onClick={() => navigate("/onboarding")}>
-        Build my plan
+        Build my plan →
       </button>
       <div className="row gap-24 wrap" style={{ justifyContent: "center", marginTop: 8, color: "var(--text-faint)", fontSize: "0.85rem" }}>
         <span>No account needed to try it</span>

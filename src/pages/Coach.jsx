@@ -4,10 +4,10 @@ import { isRequiredDay, isSuccess } from "../lib/stats.js";
 import { todayISO } from "../lib/dates.js";
 
 const PROMPTS = [
-  "I keep missing my workouts.",
-  "Can I make this habit easier?",
   "Why am I struggling?",
   "What should I focus on today?",
+  "Make my plan easier",
+  "How am I doing?",
 ];
 
 export default function Coach() {
@@ -35,13 +35,13 @@ export default function Coach() {
   }
 
   return (
-    <div className="page" style={{ height: "calc(100vh - 140px)", display: "flex", flexDirection: "column" }}>
+    <div className="page animate-in" style={{ height: "calc(100vh - 140px)", display: "flex", flexDirection: "column" }}>
       <div className="stack gap-4">
         <h1 className="page-title">Coach</h1>
-        <p className="page-subtitle">Ask about your actual habits and progress — answers are grounded in your real data.</p>
+        <p className="page-subtitle">Your habits, your patterns, your next move.</p>
       </div>
 
-      <div className="card card-pad stack gap-12" style={{ flex: 1, overflowY: "auto", minHeight: 260 }}>
+      <div className="card card-pad stack gap-12" style={{ flex: 1, overflowY: "auto", minHeight: 260, background: "var(--surface-sunken)", border: "none" }}>
         {coachMessages.length === 0 ? (
           <div className="stack gap-10">
             <p className="page-subtitle" style={{ margin: 0 }}>Try asking:</p>
@@ -52,7 +52,7 @@ export default function Coach() {
             </div>
           </div>
         ) : (
-          <div className="stack gap-10">
+          <div className="stack gap-10 stagger">
             {coachMessages.map((m) => (
               <div key={m.id} className={`chat-bubble ${m.role}`}>{m.text}</div>
             ))}
@@ -68,7 +68,7 @@ export default function Coach() {
           handleSend();
         }}
       >
-        <input className="input" value={text} onChange={(e) => setText(e.target.value)} placeholder="Ask your coach anything…" />
+        <input className="input" style={{ borderRadius: "var(--r-full)" }} value={text} onChange={(e) => setText(e.target.value)} placeholder="Ask your coach anything…" />
         <button type="submit" className="btn btn-accent">Send</button>
       </form>
     </div>

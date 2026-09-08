@@ -1,7 +1,8 @@
 import { NavLink } from "react-router-dom";
 import { useApp } from "../../context/AppContext.jsx";
+import Avatar from "../ui/Avatar.jsx";
 
-const NAV_ITEMS = [
+const SIDEBAR_ITEMS = [
   { to: "/app", label: "Home", icon: "⌂", end: true },
   { to: "/app/habits", label: "Habits", icon: "✓" },
   { to: "/app/progress", label: "Progress", icon: "◎" },
@@ -9,6 +10,10 @@ const NAV_ITEMS = [
   { to: "/app/coach", label: "Coach", icon: "✦" },
   { to: "/app/profile", label: "Profile", icon: "▤" },
 ];
+
+// Mobile keeps the five core destinations — Insights is reached from the Home
+// "Coach says" card and the Progress page instead, so the bar stays uncluttered.
+const BOTTOM_NAV_ITEMS = SIDEBAR_ITEMS.filter((item) => item.to !== "/app/insights");
 
 export default function AppShell({ children }) {
   const { user } = useApp();
@@ -22,7 +27,7 @@ export default function AppShell({ children }) {
           Atlas
         </div>
         <nav className="sidebar-nav">
-          {NAV_ITEMS.map((item) => (
+          {SIDEBAR_ITEMS.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
@@ -36,11 +41,9 @@ export default function AppShell({ children }) {
         </nav>
         {user && (
           <div className="sidebar-footer">
-            <span className="badge badge-accent" style={{ width: 30, height: 30, borderRadius: "50%", display: "grid", placeItems: "center", padding: 0 }}>
-              {initial}
-            </span>
+            <Avatar name={user.name} size={32} />
             <div className="stack" style={{ minWidth: 0 }}>
-              <span style={{ fontWeight: 600, fontSize: "0.85rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user.name}</span>
+              <span style={{ fontWeight: 700, fontSize: "0.85rem", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{user.name}</span>
               <span style={{ fontSize: "0.72rem", color: "var(--text-faint)", textTransform: "capitalize" }}>{user.mode} mode</span>
             </div>
           </div>
@@ -50,7 +53,7 @@ export default function AppShell({ children }) {
       <div className="main-area">{children}</div>
 
       <nav className="bottom-nav">
-        {NAV_ITEMS.map((item) => (
+        {BOTTOM_NAV_ITEMS.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}

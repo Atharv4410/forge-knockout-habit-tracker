@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { heatmapData } from "../../lib/stats.js";
 import { isToday, formatDateHuman } from "../../lib/dates.js";
 
@@ -17,14 +18,27 @@ function levelFor(habit, day) {
   return "missed";
 }
 
-export default function Heatmap({ habit, checkins, weeksBack = 20, onSelectDay }) {
-  const days = heatmapData(habit, checkins, weeksBack);
+const WEEKS_PER_PAGE = 20;
+const STEP = 8;
+
+export default function Heatmap({ habit, checkins, weeksBack = WEEKS_PER_PAGE, onSelectDay }) {
+  const [weekOffset, setWeekOffset] = useState(0);
+  const days = heatmapData(habit, checkins, weeksBack, weekOffset);
   // pad the front so the grid starts on a Monday-aligned column
   const firstWeekday = (new Date(days[0].date).getDay() + 6) % 7;
   const padded = Array.from({ length: firstWeekday }, () => ({ date: "__pad__" })).concat(days);
+  const rangeLabel = `${formatDateHuman(days[0].date)} – ${formatDateHuman(days[days.length - 1].date)}`;
 
   return (
-    <div>
+    <div className="stack gap-12">
+      <div className="row-between wrap gap-8">
+        <span className="micro" style={{ fontWeight: 700 }}>{rangeLabel}</span>
+        <div className="row gap-6">
+          <button type="button" className="btn btn-ghost btn-sm" onClick={() => setWeekOffset((o) => o + STEP)}>← Earlier</button>
+          <button type="button" className="btn btn-ghost btn-sm" disabled={weekOffset === 0} onClick={() => setWeekOffset((o) => Math.max(0, o - STEP))}>Later →</button>
+        </div>
+      </div>
+
       <div className="heatmap-grid" role="grid" aria-label={`${habit.name} history`}>
         {padded.map((day, i) => {
           const level = levelFor(habit, day);
@@ -43,7 +57,7 @@ export default function Heatmap({ habit, checkins, weeksBack = 20, onSelectDay }
           );
         })}
       </div>
-      <div className="row gap-8" style={{ marginTop: 10, fontSize: "0.75rem", color: "var(--text-faint)" }}>
+      <div className="row gap-8" style={{ fontSize: "0.75rem", color: "var(--text-faint)" }}>
         <span>Less</span>
         <span className="heatmap-cell level-0" style={{ cursor: "default" }} />
         <span className="heatmap-cell level-1" style={{ cursor: "default" }} />

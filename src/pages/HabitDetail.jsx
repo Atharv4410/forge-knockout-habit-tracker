@@ -6,6 +6,7 @@ import StatCard from "../components/ui/StatCard.jsx";
 import { computeStreaks, trailingCompletionRate } from "../lib/stats.js";
 import { describeFrequency, describeTarget, missReasonLabel } from "../lib/format.js";
 import { formatDateHuman } from "../lib/dates.js";
+import { habitIcon } from "../lib/habitIcons.js";
 
 export default function HabitDetail() {
   const { habitId } = useParams();
@@ -28,13 +29,16 @@ export default function HabitDetail() {
   const others = habits.filter((h) => h.id !== habit.id);
 
   return (
-    <div className="page page-narrow">
+    <div className="page page-narrow animate-in">
       <button type="button" className="btn btn-ghost btn-sm" style={{ alignSelf: "flex-start" }} onClick={() => navigate("/app/habits")}>← Back to habits</button>
 
       <div className="row-between wrap gap-16">
-        <div className="stack gap-4">
-          <h1 className="page-title">{habit.name}</h1>
-          <p className="page-subtitle">{describeFrequency(habit)} · {describeTarget(habit)}</p>
+        <div className="row gap-14">
+          <div className="habit-icon" style={{ width: 52, height: 52, fontSize: "1.5rem" }} aria-hidden="true">{habitIcon(habit)}</div>
+          <div className="stack gap-4">
+            <h1 className="page-title">{habit.name}</h1>
+            <p className="page-subtitle">{describeFrequency(habit)} · {describeTarget(habit)}</p>
+          </div>
         </div>
         {others.length > 0 && (
           <select className="select" style={{ width: 220 }} value={habit.id} onChange={(e) => navigate(`/app/habits/${e.target.value}`)}>

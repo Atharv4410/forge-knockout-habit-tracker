@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useApp } from "../context/AppContext.jsx";
 import { useToast } from "../components/ui/Toast.jsx";
 import EmptyState from "../components/ui/EmptyState.jsx";
+import SectionHeader from "../components/ui/SectionHeader.jsx";
 import AdjustmentCard from "../components/insights/AdjustmentCard.jsx";
 import { generateWeeklyInsights } from "../ai/index.js";
 import { timeBucket, addMinutesToTime } from "../lib/dates.js";
@@ -41,10 +42,18 @@ export default function Insights() {
   }
 
   return (
-    <div className="page">
+    <div className="page animate-in">
       <div className="stack gap-4">
         <h1 className="page-title">Your week</h1>
-        <p className="page-subtitle">{insights.consistency != null ? `${insights.consistency}% consistency` : "Still gathering data"}</p>
+        <p className="page-subtitle">A grounded look at what actually happened — not a guess.</p>
+      </div>
+
+      <div className="card card-dark hero-day-card">
+        <div className="hero-day-copy">
+          <span className="eyebrow" style={{ color: "var(--text-on-dark-faint)" }}>This week</span>
+          <span className="display-2" style={{ color: "var(--text-on-dark)" }}>{insights.consistency != null ? `${insights.consistency}%` : "—"}</span>
+          <span style={{ color: "var(--text-on-dark-muted)", fontWeight: 600, fontSize: "0.94rem" }}>consistency</span>
+        </div>
       </div>
 
       {insights.bullets.length > 0 && (
@@ -71,7 +80,7 @@ export default function Insights() {
       )}
 
       <div className="stack gap-14">
-        <span className="section-title">Adaptive suggestions</span>
+        <SectionHeader title="Adaptive suggestions" />
         {pendingAdjustments.length === 0 ? (
           <p className="page-subtitle">Nothing to adjust right now — your plan matches how things are actually going.</p>
         ) : (

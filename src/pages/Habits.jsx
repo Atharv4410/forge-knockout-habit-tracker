@@ -5,8 +5,10 @@ import { useToast } from "../components/ui/Toast.jsx";
 import Modal from "../components/ui/Modal.jsx";
 import HabitFields from "../components/habit/HabitFields.jsx";
 import EmptyState from "../components/ui/EmptyState.jsx";
+import SectionHeader from "../components/ui/SectionHeader.jsx";
 import { describeFrequency, describeTarget } from "../lib/format.js";
-import { computeStreaks } from "../lib/stats.js";
+import { computeStreaks, trailingCompletionRate } from "../lib/stats.js";
+import { habitIcon } from "../lib/habitIcons.js";
 
 const BLANK_DRAFT = {
   name: "",
@@ -57,35 +59,48 @@ export default function Habits() {
   }
 
   return (
-    <div className="page">
+    <div className="page animate-in">
       <div className="row-between wrap gap-16">
         <div className="stack gap-4">
           <h1 className="page-title">Your habits</h1>
           <p className="page-subtitle">{active.length} active</p>
         </div>
-        <button type="button" className="btn btn-accent" onClick={openAdd}>+ Add habit</button>
+        <button type="button" className="btn btn-accent" onClick={openAdd}>+ New habit</button>
       </div>
 
       {active.length === 0 ? (
-        <EmptyState icon="🌱" title="No active habits" body="Add one manually, or build a full plan from your goal." action={<button type="button" className="btn btn-accent" onClick={() => navigate("/onboarding")}>Build my plan</button>} />
+        <EmptyState
+          icon="🌱"
+          title="Nothing here yet."
+          body="Tell us what you're trying to improve and we'll build your starting system, or add one habit by hand."
+          action={<button type="button" className="btn btn-accent" onClick={() => navigate("/onboarding")}>Build my plan →</button>}
+        />
       ) : (
-        <div className="stack gap-12">
-          {active.map((h) => {
-            const streaks = computeStreaks(h, checkins);
-            return (
-              <div key={h.id} className="card card-pad row-between wrap gap-12">
-                <button type="button" className="stack gap-4" style={{ background: "none", border: "none", textAlign: "left", flex: 1, minWidth: 200 }} onClick={() => navigate(`/app/habits/${h.id}`)}>
-                  <span style={{ fontWeight: 650 }}>{h.name}</span>
-                  <span className="page-subtitle" style={{ margin: 0 }}>{describeFrequency(h)} · {describeTarget(h)}</span>
-                  <span style={{ fontSize: "0.8rem", color: "var(--text-faint)" }}>🔥 {streaks.current} current · 🏆 {streaks.best} best</span>
-                </button>
-                <div className="row gap-8">
-                  <button type="button" className="btn btn-secondary btn-sm" onClick={() => openEdit(h)}>Edit</button>
-                  <button type="button" className="btn btn-danger-ghost btn-sm" onClick={() => setConfirmArchiveId(h.id)}>Archive</button>
+        <div className="stack gap-14">
+          <SectionHeader title="Active" />
+          <div className="stack gap-12 stagger">
+            {active.map((h) => {
+              const streaks = computeStreaks(h, checkins);
+              const rate = trailingCompletionRate(h, checkins, 30);
+              return (
+                <div key={h.id} className="habit-card">
+                  <div className="habit-icon" aria-hidden="true">{habitIcon(h)}</div>
+                  <button type="button" className="habit-card-body" style={{ background: "none", border: "none", textAlign: "left", padding: 0, cursor: "pointer" }} onClick={() => navigate(`/app/habits/${h.id}`)}>
+                    <span className="habit-card-name">{h.name}</span>
+                    <span className="habit-card-meta">{describeFrequency(h)} · {describeTarget(h)}</span>
+                    <span className="row gap-10" style={{ marginTop: 2 }}>
+                      <span className="streak-pill"><span className="streak-flame" aria-hidden="true">🔥</span> {streaks.current}</span>
+                      {rate != null && <span className="micro" style={{ fontWeight: 700 }}>{Math.round(rate * 100)}% complete</span>}
+                    </span>
+                  </button>
+                  <div className="stack gap-6">
+                    <button type="button" className="btn btn-secondary btn-sm" onClick={() => openEdit(h)}>Edit</button>
+                    <button type="button" className="btn btn-danger-ghost btn-sm" onClick={() => setConfirmArchiveId(h.id)}>Archive</button>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       )}
 
@@ -99,7 +114,7 @@ export default function Habits() {
               {archived.map((h) => (
                 <div key={h.id} className="card card-pad row-between" style={{ opacity: 0.6 }}>
                   <button type="button" style={{ background: "none", border: "none", textAlign: "left" }} onClick={() => navigate(`/app/habits/${h.id}`)}>
-                    <span style={{ fontWeight: 600 }}>{h.name}</span>
+                    <span style={{ fontWeight: 700 }}>{h.name}</span>
                     <span className="page-subtitle" style={{ margin: 0, display: "block" }}>Archived {h.archivedAt}</span>
                   </button>
                 </div>
@@ -112,7 +127,7 @@ export default function Habits() {
       <Modal open={!!modal} onClose={() => setModal(null)} labelledBy="habit-modal-title">
         {modal && (
           <>
-            <h2 id="habit-modal-title" className="section-title">{modal.mode === "add" ? "Add a habit" : "Edit habit"}</h2>
+            <h2 id="habit-modal-title" className="section-title">{modal.mode === "add" ? "Start a new habit" : "Edit habit"}</h2>
             <HabitFields draft={modal.draft} onChange={(next) => setModal((m) => ({ ...m, draft: next }))} />
             <div className="row gap-8" style={{ justifyContent: "flex-end" }}>
               <button type="button" className="btn btn-ghost" onClick={() => setModal(null)}>Cancel</button>
