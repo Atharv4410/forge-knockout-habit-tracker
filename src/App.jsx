@@ -1,55 +1,49 @@
-import { useEffect, useState } from "react";
-import AddHabitForm from "./components/AddHabitForm.jsx";
-import HabitList from "./components/HabitList.jsx";
-import { loadHabits, saveHabits } from "./lib/storage.js";
-import { todayISO } from "./lib/dates.js";
+import { Navigate, Route, Routes } from "react-router-dom";
+import { useApp } from "./context/AppContext.jsx";
+import { usePushSync } from "./hooks/usePushSync.js";
+import AppShell from "./components/layout/AppShell.jsx";
+import Landing from "./pages/Landing.jsx";
+import Onboarding from "./pages/Onboarding.jsx";
+import Dashboard from "./pages/Dashboard.jsx";
+import Habits from "./pages/Habits.jsx";
+import HabitDetail from "./pages/HabitDetail.jsx";
+import Progress from "./pages/Progress.jsx";
+import Insights from "./pages/Insights.jsx";
+import Coach from "./pages/Coach.jsx";
+import Profile from "./pages/Profile.jsx";
+
+function RequireOnboarded({ children }) {
+  const { user } = useApp();
+  if (!user?.onboarded) return <Navigate to="/" replace />;
+  return children;
+}
 
 export default function App() {
-  const [habits, setHabits] = useState(() => loadHabits());
-
-  useEffect(() => {
-    saveHabits(habits);
-  }, [habits]);
-
-  function handleAddHabit(name) {
-    const newHabit = {
-      id: crypto.randomUUID(),
-      name,
-      createdAt: todayISO(),
-      checkIns: [],
-    };
-    setHabits((prev) => [...prev, newHabit]);
-  }
-
-  function handleToggleToday(habitId) {
-    const today = todayISO();
-    setHabits((prev) =>
-      prev.map((habit) => {
-        if (habit.id !== habitId) return habit;
-        const isDone = habit.checkIns.includes(today);
-        return {
-          ...habit,
-          checkIns: isDone
-            ? habit.checkIns.filter((d) => d !== today)
-            : [...habit.checkIns, today],
-        };
-      }),
-    );
-  }
-
-  function handleDelete(habitId) {
-    setHabits((prev) => prev.filter((habit) => habit.id !== habitId));
-  }
+  usePushSync();
 
   return (
-    <main className="app">
-      <h1>Today</h1>
-      <AddHabitForm onAddHabit={handleAddHabit} />
-      <HabitList
-        habits={habits}
-        onToggleToday={handleToggleToday}
-        onDelete={handleDelete}
+    <Routes>
+      <Route path="/" element={<Landing />} />
+      <Route path="/onboarding" element={<Onboarding />} />
+      <Route
+        path="/app/*"
+        element={
+          <RequireOnboarded>
+            <AppShell>
+              <Routes>
+                <Route index element={<Dashboard />} />
+                <Route path="habits" element={<Habits />} />
+                <Route path="habits/:habitId" element={<HabitDetail />} />
+                <Route path="progress" element={<Progress />} />
+                <Route path="insights" element={<Insights />} />
+                <Route path="coach" element={<Coach />} />
+                <Route path="profile" element={<Profile />} />
+              </Routes>
+            </AppShell>
+          </RequireOnboarded>
+        }
       />
-    </main>
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
